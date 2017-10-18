@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 
-// use ejs as the view engine
+// use jade as the view engine
 //app.set('views', __dirname + 'views');
 app.set('views', path.resolve(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -45,11 +45,16 @@ app.get('/temp', function (req, res) {
         device_temperature.push(device[i].temperature);
         id_array.push(device[i].device_id);
     }
-    //this is the. local print statement
-    res.render("index", [{device_temperature: device_temperature}, {id_array: id_array}]);
+    device_data = {
+        "device_id": Math.floor(Math.random() * 20) + 1,
+        "timestamp": Math.floor(Date.now() / 1000),
+        "temperature": Math.floor(Math.random()*100)+32
+    };
+    device.push(device_data);
+    res.send(device);
 });
 
-//http://localhost:5000/temp
+
 //This is where it will post to TEMP
 app.post('/temp', function (req, res) {
     if (!req.body.device_id || !req.body.temperature) {
@@ -72,11 +77,11 @@ app.post('/temp', function (req, res) {
     //message for successful execution
     res.send(console.log("added"));
     // load the new data to temp
+
     res.redirect('/temp');
 });
 
 // Retrieves the most recent from device
-//http://www.localhost.com:5000/temp/latest
 app.get('/temp/latest', function (req, res) {
     highest = 0;
     for (var i = 0; i < device.length; i++) {
@@ -87,7 +92,7 @@ app.get('/temp/latest', function (req, res) {
     }
     res.send(value);
 });
-//http://localhost.com:5000/highest
+
 // Retrieves the most recent from device
 app.get('/temp/highest', function (req, res) {
     highest = 0;
@@ -116,7 +121,7 @@ app.get('/temp/lowest', function (req, res) {
 
 });
 
-//This will average out the device temps
+//This will display average temperature
 app.get('/temp/average', function (req, res) {
     total = 0;
     for (var i = 0; i < device.length; i++) {
@@ -126,7 +131,7 @@ app.get('/temp/average', function (req, res) {
     res.send({average_temperature});
 
 });
-//device_id
+//will display temperature of any given {device_id}
 app.get('/temp/:device_id', function (req, res, next) {
     sensor = [];
     for (var i = 0; i < device.length; i++) {
@@ -147,7 +152,7 @@ app.get('/temp/:device_id', function (req, res, next) {
 });
 
 
-//latest from {device_id}
+//latest temperature from {device_id}
 app.get('/temp/:device_id/latest', function (req, res, next) {
     sensor = [];
     for (var i = device.length - 1; i > 0; i--) {
@@ -166,7 +171,7 @@ app.get('/temp/:device_id/latest', function (req, res, next) {
 
     res.send(sensor);
 });
-//Highest from {device_id}
+//Highest temperature from {device_id}
 app.get('/temp/:device_id/highest', function (req, res, next) {
     sensor = [];
     for (var i = 0; i < device.length; i++) {
@@ -192,7 +197,7 @@ app.get('/temp/:device_id/highest', function (req, res, next) {
 
     res.end("Error");
 });
-
+//lowest temperature from {device_id}
 app.get('/temp/:device_id/lowest', function (req, res, next) {
     sensor = [];
     for (var i = 0; i < device.length; i++) {
@@ -218,7 +223,7 @@ app.get('/temp/:device_id/lowest', function (req, res, next) {
 
     res.end("Error");
 });
-
+//Average temperature from {device_id}
 app.get('/temp/:device_id/average', function (req, res, next) {
     sensor = [];
     total= 0;
